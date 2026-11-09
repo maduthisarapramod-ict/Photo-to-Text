@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HandScan Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Inter:wght@400;600;700&family=Lora:wght@400;700&family=Merriweather:wght@400;700&family=Noto+Sans+Sinhala:wght@400;700&family=Noto+Sans+Tamil:wght@400;700&family=Noto+Serif+Sinhala:wght@400;700&family=Noto+Serif+Tamil:wght@400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f3fb;--card:#fff;--tx:#1b1b2f;--mu:#6b7280;--ac:#5b3df5;--ac2:#0aa89a;--bd:#e4e5f1;--ok:#16a34a;--bad:#dc2626;--sh:0 2px 10px rgba(40,30,120,.08)}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Inter,"Noto Sans Sinhala","Noto Sans Tamil","Iskoola Pota","Nirmala UI",system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+.top{background:linear-gradient(120deg,#4527d8,#7b3ff2 55%,#0aa89a);color:#fff;padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.top h1{margin:0;font-size:22px;letter-spacing:.3px}
+.top p{margin:2px 0 0;font-size:13px;opacity:.9}
+.lang{display:flex;gap:6px}
+.lang button{border:1px solid #fff8;background:#fff2;color:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;font-weight:600}
+.lang button.on{background:#fff;color:#4527d8}
+.steps{display:flex;gap:6px;padding:10px 14px;background:#fff;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:20;overflow-x:auto}
+.steps button{border:0;background:#eef0ff;color:var(--ac);padding:9px 16px;border-radius:999px;font-weight:600;cursor:pointer;white-space:nowrap}
+.steps button.on{background:var(--ac);color:#fff}
+main{max-width:1280px;margin:0 auto;padding:16px}
+.step{display:none}.step.on{display:block}
+.card{background:var(--card);border-radius:14px;padding:16px;box-shadow:var(--sh);margin-bottom:14px}
+.card h2,.card h3{margin:0 0 10px}
+.btn{border:0;background:var(--ac);color:#fff;padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.o{background:#fff;color:var(--ac);border:1px solid var(--ac)}
+.btn.g{background:var(--ok)}.btn.r{background:var(--bad)}.btn.t{background:var(--ac2)}
+.btn.sm{padding:5px 10px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.row>*{flex:1;min-width:120px}
+.row.nf>*{flex:0 0 auto;min-width:0}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--mu);margin-bottom:3px}
+input[type=text],input[type=number],input[type=password],select,textarea{width:100%;padding:8px 10px;border:1px solid #cfd2e6;border-radius:8px;background:#fff}
+input[type=color]{width:100%;height:36px;padding:2px;border:1px solid #cfd2e6;border-radius:8px;background:#fff}
+input[type=range]{width:100%}
+.chk{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--tx);font-weight:500;margin:6px 0}
+.chk input{width:auto}
+.muted{color:var(--mu);font-size:13px}
+.drop{border:2px dashed #b9b4f5;border-radius:14px;background:#faf9ff;padding:30px 16px;text-align:center;cursor:pointer}
+.drop.over{background:#efecff;border-color:var(--ac)}
+.drop big{display:block;font-size:34px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:14px}
+.th{border:1px solid var(--bd);border-radius:12px;overflow:hidden;background:#fff;position:relative}
+.th img{width:100%;height:130px;object-fit:cover;display:block;background:#eee}
+.th .bar{display:flex;gap:4px;padding:6px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.th .bar button{border:1px solid var(--bd);background:#fff;border-radius:6px;cursor:pointer;padding:2px 7px}
+.badge{position:absolute;top:6px;left:6px;background:#000a;color:#fff;border-radius:999px;padding:1px 9px;font-size:12px}
+.badge.done{background:#16a34add}.badge.busy{background:#d97706dd}.badge.err{background:#dc2626dd}
+.ed{display:grid;grid-template-columns:130px 1fr;gap:14px}
+.plist{display:flex;flex-direction:column;gap:8px;max-height:78vh;overflow:auto}
+.pi{border:2px solid var(--bd);border-radius:10px;background:#fff;cursor:pointer;overflow:hidden;font-size:12px;text-align:center}
+.pi.on{border-color:var(--ac)}
+.pi img{width:100%;height:74px;object-fit:cover;display:block;background:#eee}
+.pi .ph{height:74px;display:flex;align-items:center;justify-content:center;background:#f3f4f8;color:var(--mu)}
+.pane{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.vbox{height:62vh;overflow:auto;border:1px solid var(--bd);border-radius:10px;background:#f8f8fb}
+.vbox img{display:block;width:100%;transform-origin:top left}
+.vhead,.tbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+#ta{height:62vh;resize:vertical;line-height:1.7;font-family:"Noto Sans Sinhala","Noto Sans Tamil",Inter,"Iskoola Pota","Nirmala UI",sans-serif}
+.hint{background:#eefbf9;border:1px solid #b6ece6;color:#0b6b62;border-radius:10px;padding:9px 12px;font-size:13.5px;margin-bottom:12px}
+.warn{background:#fff7e6;border:1px solid #fde1a6;color:#8a5a00}
+.dz{display:grid;grid-template-columns:340px 1fr;gap:14px}
+.ctrl{max-height:80vh;overflow:auto}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;border:1px solid var(--bd);background:#fff;border-radius:10px;padding:9px 3px;cursor:pointer;font-weight:600;min-width:60px;font-size:13px;line-height:1.2}
+.seg button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.tpls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.tpls button{border:2px solid var(--bd);background:#fff;border-radius:10px;padding:8px;cursor:pointer;text-align:left;font-weight:600;font-size:13px}
+.tpls button.on{border-color:var(--ac);background:#f2f0ff}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+details{border-top:1px solid var(--bd);padding:8px 0;margin-top:8px}
+summary{cursor:pointer;font-weight:700;color:var(--ac)}
+.prev{background:#d9dae8;border-radius:14px;padding:14px;max-height:84vh;overflow:auto}
+.pw{margin:0 auto 14px;position:relative;box-shadow:0 3px 14px rgba(0,0,0,.25);background:#fff}
+.pw .pn{position:absolute;bottom:-1px;right:0;transform:translateY(100%);font-size:11px;color:#444;display:none}
+.page{position:absolute;left:0;top:0;transform-origin:0 0;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page .content{position:absolute;overflow:hidden}
+.ln{display:block;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;padding:0}
+.hdbar{position:absolute;font-size:12px;opacity:.75}
+.exp{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.exp .card{margin:0}
+.exp .btn{width:100%;margin-top:8px}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#16162a;color:#fff;padding:10px 18px;border-radius:10px;display:none;z-index:300;max-width:90vw}
+#busy{position:fixed;inset:0;background:#fffffff2;z-index:250;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:20px;text-align:center}
+#busy .pb{width:min(420px,80vw);height:10px;border-radius:6px;background:#e3e3f3;overflow:hidden}
+#busy .pb i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));width:0}
+.fab{position:fixed;right:18px;bottom:18px;z-index:90;border-radius:999px;padding:13px 20px;box-shadow:0 6px 20px rgba(80,50,230,.45)}
+.chat{position:fixed;right:0;top:0;bottom:0;width:min(430px,100vw);background:#fff;z-index:120;box-shadow:-4px 0 24px rgba(0,0,0,.2);display:none;flex-direction:column}
+.chat.open{display:flex}
+.chat header{padding:12px 14px;background:linear-gradient(120deg,#4527d8,#7b3ff2);color:#fff;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.chat header select{width:auto;color:#222}
+#msgs{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:#f7f7fc}
+.m{max-width:92%;padding:9px 12px;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
+.m.u{align-self:flex-end;background:var(--ac);color:#fff}
+.m.a{align-self:flex-start;background:#fff;border:1px solid var(--bd)}
+.m pre{margin:8px 0 0;padding:8px;background:#f1f2f8;border-radius:8px;white-space:pre-wrap;max-height:180px;overflow:auto;font:inherit;font-size:13px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px;border-top:1px solid var(--bd)}
+.chips button{border:1px solid var(--bd);background:#fff;border-radius:999px;padding:5px 10px;font-size:12.5px;cursor:pointer}
+.cin{display:flex;gap:8px;padding:10px;border-top:1px solid var(--bd)}
+.cin textarea{height:56px;resize:none}
+#printRoot{display:none}
+@media print{
+ body>*:not(#printRoot){display:none!important}
+ body{background:#fff}
+ #printRoot{display:block!important}
+ #printRoot .page{position:relative!important;box-shadow:none!important;break-after:page;page-break-after:always}
+ #printRoot .page:last-child{break-after:auto;page-break-after:auto}
+}
+@media(max-width:900px){
+ .ed{grid-template-columns:1fr}.plist{flex-direction:row;max-height:none}.pi{min-width:90px}
+ .pane{grid-template-columns:1fr}.vbox{height:42vh}#ta{height:48vh}
+ .dz{grid-template-columns:1fr}.ctrl{max-height:none}.prev{max-height:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+ <div><h1>✍️ HandScan Studio</h1><p data-i18n="tagline"></p></div>
+ <div class="lang"><button data-l="en">EN</button><button data-l="si">සිං</button><button data-l="ta">தமிழ்</button></div>
+</header>
+<nav class="steps" id="steps"></nav>
+<main>
+
+<!-- STEP 1 -->
+<section class="step" id="s1">
+ <div class="card">
+  <div class="drop" id="drop"><big>📷</big><b data-i18n="dropTxt"></b><div class="muted" data-i18n="dropSub"></div></div>
+  <input type="file" id="file" accept="image/*" multiple hidden>
+  <input type="file" id="cam" accept="image/*" capture="environment" hidden>
+  <div class="row nf" style="margin-top:10px">
+   <button class="btn o" id="btnCam" data-i18n="camera"></button>
+   <button class="btn o" id="btnManual" data-i18n="manual"></button>
+   <button class="btn r sm" id="btnClear" data-i18n="clearAll"></button>
+  </div>
+  <div class="thumbs" id="thumbs"></div>
+ </div>
+ <div class="card">
+  <h3 data-i18n="engineH"></h3>
+  <div class="row">
+   <div><label data-i18n="hwLang"></label><select id="ocrLang"><option value="auto" data-i18n="auto"></option><option value="si" data-i18n="si"></option><option value="en" data-i18n="en"></option><option value="ta" data-i18n="ta"></option><option value="mixed" data-i18n="mixed"></option></select></div>
+   <div><label data-i18n="engine"></label><select id="engine"><option value="puter" data-i18n="e_puter"></option><option value="gemini" data-i18n="e_gemini"></option><option value="tess" data-i18n="e_tess"></option></select></div>
+  </div>
+  <div id="gemBox" style="display:none;margin-top:10px" class="row">
+   <div style="flex:2"><label data-i18n="gkey"></label><input type="password" id="gkey" autocomplete="off" placeholder="AIza..."></div>
+   <div><label data-i18n="model"></label><input type="text" id="gmodel"></div>
+   <div style="flex:0 0 auto"><a class="btn o sm" target="_blank" rel="noopener" href="https://aistudio.google.com/apikey" data-i18n="getKey"></a></div>
+  </div>
+  <div id="putBox" style="margin-top:10px" class="row">
+   <div><label><span data-i18n="model"></span> (<span data-i18n="optional"></span>)</label><input type="text" id="pmodel" list="pmodels" placeholder="default"><datalist id="pmodels"><option value="openai/gpt-5.4-nano"><option value="google/gemini-3.8-flash"><option value="claude-sonnet-4-6"><option value="gpt-6-luna"></datalist></div>
+  </div>
+  <label class="chk"><input type="checkbox" id="enhance"><span data-i18n="enhance"></span></label>
+  <div class="hint" data-i18n="engineNote"></div>
+  <div class="hint warn" data-i18n="privacy"></div>
+  <button class="btn t" id="btnRead" style="font-size:16px;padding:12px 22px" data-i18n="readAll"></button>
+ </div>
+</section>
+
+<!-- STEP 2 -->
+<section class="step" id="s2">
+ <div class="hint" data-i18n="editHint"></div>
+ <div class="ed">
+  <div class="plist" id="plist"></div>
+  <div class="pane">
+   <div class="card">
+    <div class="vhead"><b data-i18n="photo"></b><input type="range" id="imgZoom" min="60" max="300" value="100" style="width:110px"><button class="btn o sm" id="rotL">⟲</button><button class="btn o sm" id="rotR">⟳</button></div>
+    <div class="vbox" id="vbox"><img id="pimg" alt=""></div>
+    <div id="noimg" class="muted" style="display:none" data-i18n="noImg"></div>
+   </div>
+   <div class="card">
+    <div class="tbar"><b data-i18n="text"></b>
+     <button class="btn o sm" id="bUndo" data-i18n="undo"></button><button class="btn o sm" id="bRedo" data-i18n="redo"></button>
+     <button class="btn o sm" id="bCut" data-i18n="cut"></button><button class="btn o sm" id="bCopy" data-i18n="copy"></button><button class="btn o sm" id="bPaste" data-i18n="paste"></button><button class="btn o sm" id="bSel" data-i18n="selAll"></button>
+    </div>
+    <textarea id="ta" spellcheck="false"></textarea>
+    <div class="tbar" style="margin-top:8px">
+     <button class="btn o sm" id="bAgain" data-i18n="again"></button><button class="btn o sm" id="bAdd" data-i18n="addPage"></button><button class="btn o sm" id="bDel" data-i18n="delPage"></button><button class="btn o sm" id="bMerge" data-i18n="merge"></button><button class="btn o sm" id="bSplit" data-i18n="split"></button>
+    </div>
+    <details><summary data-i18n="findRep"></summary>
+     <div class="row" style="margin-top:8px"><div><label data-i18n="find"></label><input type="text" id="fFind"></div><div><label data-i18n="repWith"></label><input type="text" id="fRep"></div></div>
+     <div class="row nf" style="margin-top:8px"><button class="btn o sm" id="fOne" data-i18n="repPage"></button><button class="btn o sm" id="fAll" data-i18n="repAll"></button></div>
+    </details>
+   </div>
+  </div>
+ </div>
+ <div class="row nf"><button class="btn o" data-go="1" data-i18n="back"></button><button class="btn" data-go="3" data-i18n="next"></button></div>
+</section>
+
+<!-- STEP 3 -->
+<section class="step" id="s3">
+ <div class="dz">
+  <div class="card ctrl">
+   <label data-i18n="outType"></label>
+   <div class="seg" id="typeSeg"></div>
+   <label style="margin-top:12px" data-i18n="template"></label>
+   <div class="tpls" id="tpls"></div>
+   <div id="designCtl">
+   <details open><summary data-i18n="pageH"></summary>
+    <div class="g2" style="margin-top:8px">
+     <div><label data-i18n="size"></label><select data-k="size"><option>A4</option><option>A5</option><option>A6</option><option>B5</option><option>Letter</option><option>6x9</option></select></div>
+     <div><label data-i18n="orient"></label><select data-k="orient"><option value="portrait" data-i18n="portrait"></option><option value="landscape" data-i18n="landscape"></option></select></div>
+    </div>
+    <div class="g3" style="margin-top:8px">
+     <div><label data-i18n="mTop"></label><input type="number" data-k="mt" step="1" min="0"></div>
+     <div><label data-i18n="mBottom"></label><input type="number" data-k="mb" step="1" min="0"></div>
+     <div></div>
+     <div><label data-i18n="mInner"></label><input type="number" data-k="mi" step="1" min="0"></div>
+     <div><label data-i18n="mOuter"></label><input type="number" data-k="mo" step="1" min="0"></div>
+    </div>
+    <div style="margin-top:8px"><label data-i18n="pageNums"></label><select data-k="pageNums"><option value="none" data-i18n="none"></option><option value="center" data-i18n="pnCenter"></option><option value="outside" data-i18n="pnOutside"></option><option value="topright" data-i18n="pnTop"></option></select></div>
+   </details>
+   <details open><summary data-i18n="textH"></summary>
+    <div style="margin-top:8px"><label data-i18n="font"></label><select data-k="font"><option value="serif">Serif (Lora)</option><option value="sans">Sans (Inter)</option><option value="book">Book (Merriweather)</option><option value="hand">Handwriting (Caveat)</option><option value="hand2">Handwriting 2 (Patrick Hand)</option><option value="mono">Typewriter</option></select></div>
+    <div class="g2" style="margin-top:8px">
+     <div><label data-i18n="fontSize"></label><input type="number" data-k="fs" min="8" max="40" step="0.5"></div>
+     <div><label data-i18n="indent"></label><input type="number" data-k="indent" min="0" max="80"></div>
+    </div>
+    <div style="margin-top:8px"><label><span data-i18n="lineSp"></span>: <b id="lhmv"></b></label><input type="range" data-k="lhm" min="1.1" max="3" step="0.05"></div>
+    <div class="g2" style="margin-top:8px">
+     <div><label data-i18n="align"></label><select data-k="align"><option value="left" data-i18n="aLeft"></option><option value="justify" data-i18n="aJust"></option><option value="center" data-i18n="aCenter"></option></select></div>
+     <div><label data-i18n="ink"></label><input type="color" data-k="ink"></div>
+    </div>
+   </details>
+   <details><summary data-i18n="paperH"></summary>
+    <div class="g2" style="margin-top:8px">
+     <div><label data-i18n="lines"></label><select data-k="lines"><option value="none" data-i18n="none"></option><option value="ruled" data-i18n="ruled"></option><option value="grid" data-i18n="gridL"></option><option value="dots" data-i18n="dotsL"></option></select></div>
+     <div><label data-i18n="lineCol"></label><input type="color" data-k="lineColor"></div>
+     <div><label data-i18n="paperCol"></label><input type="color" data-k="paper"></div>
+     <div><label data-i18n="marginCol"></label><input type="color" data-k="marginColor"></div>
+    </div>
+    <label class="chk"><input type="checkbox" data-k="marginLine"><span data-i18n="marginLine"></span></label>
+   </details>
+   <details open><summary data-i18n="contentH"></summary>
+    <div style="margin-top:8px"><label data-i18n="title"></label><input type="text" data-k="title"></div>
+    <div class="g2" style="margin-top:8px"><div><label data-i18n="author"></label><input type="text" data-k="author"></div><div><label data-i18n="date"></label><input type="text" data-k="date"></div></div>
+    <div style="margin-top:8px"><label data-i18n="recipient"></label><textarea data-k="recipient" rows="2"></textarea></div>
+    <label class="chk"><input type="checkbox" data-k="keepBreaks"><span data-i18n="keepBreaks"></span></label>
+    <label class="chk"><input type="checkbox" data-k="paraGap"><span data-i18n="paraGap"></span></label>
+    <label class="chk"><input type="checkbox" data-k="perPhoto"><span data-i18n="perPhoto"></span></label>
+    <label class="chk"><input type="checkbox" data-k="headings"><span data-i18n="headings"></span></label>
+    <label class="chk"><input type="checkbox" data-k="titlePage"><span data-i18n="titlePage"></span></label>
+    <label class="chk"><input type="checkbox" data-k="toc"><span data-i18n="toc"></span></label>
+    <label class="chk"><input type="checkbox" data-k="runHead"><span data-i18n="runHead"></span></label>
+   </details>
+   </div>
+  </div>
+  <div>
+   <div class="row nf" style="margin-bottom:8px;align-items:center"><b id="pcount"></b><span style="flex:1"></span><label style="margin:0" data-i18n="zoom"></label><input type="range" id="zoom" min="30" max="150" value="100" style="width:140px"></div>
+   <div class="prev" id="prev"></div>
+  </div>
+ </div>
+ <div class="row nf" style="margin-top:12px"><button class="btn o" data-go="2" data-i18n="back"></button><button class="btn" data-go="4" data-i18n="next"></button></div>
+</section>
+
+<!-- STEP 4 -->
+<section class="step" id="s4">
+ <div class="exp">
+  <div class="card"><h3>📄 PDF</h3><div class="muted" data-i18n="pdfNote"></div>
+   <div style="margin-top:8px"><label data-i18n="quality"></label><select id="q"><option value="1.5">Standard</option><option value="2" selected>High</option><option value="3">Max</option></select></div>
+   <button class="btn g" id="xPdf" data-i18n="dlPdf"></button>
+   <button class="btn o" id="xPrint" data-i18n="printPdf"></button>
+  </div>
+  <div class="card"><h3>📝 Text</h3>
+   <label class="chk"><input type="checkbox" id="txtSep" checked><span data-i18n="txtSep"></span></label>
+   <button class="btn" id="xTxt" data-i18n="dlTxt"></button>
+   <button class="btn o" id="xDoc" data-i18n="dlDoc"></button>
+   <button class="btn o" id="xCopy" data-i18n="copyAll"></button>
+  </div>
+  <div class="card"><h3>💾 Backup</h3><div class="muted" data-i18n="bkNote"></div>
+   <button class="btn o" id="xBk" data-i18n="dlBk"></button>
+   <button class="btn o" id="xRs" data-i18n="restore"></button><input type="file" id="rsFile" accept=".json" hidden>
+  </div>
+ </div>
+ <div class="row nf" style="margin-top:12px"><button class="btn o" data-go="3" data-i18n="back"></button></div>
+</section>
+</main>
+
+<button class="btn fab" id="fab">🤖 <span data-i18n="aiH"></span></button>
+<aside class="chat" id="chat">
+ <header><b>🤖 <span data-i18n="aiH"></span></b>
+  <span style="flex:1"></span>
+  <select id="cScope"><option value="page" data-i18n="thisPage"></option><option value="all" data-i18n="allPages"></option></select>
+  <button class="btn sm" style="background:#fff3;color:#fff" id="cClose">✕</button></header>
+ <div id="msgs"></div>
+ <div class="chips" id="chips"></div>
+ <div class="cin"><textarea id="cText" data-i18n-ph="aiPh"></textarea><button class="btn" id="cSend" data-i18n="send"></button></div>
+</aside>
+<div id="busy"><div id="busyMsg" style="font-weight:600"></div><div class="pb"><i id="busyBar"></i></div><button class="btn o sm" id="busyCancel" data-i18n="cancel"></button></div>
+<div id="toast"></div>
+<div id="printRoot"></div>
+
+<script>
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ================= i18n ================= */
+const LI={en:0,si:1,ta:2};let L='en';
+const D={
+tagline:['Turn handwritten photos into text, PDF, books and papers — 100% free.','අතින් ලියූ ඡායාරූප පෙළ, PDF, පොත් සහ කඩදාසි බවට පත් කරන්න — 100% නොමිලේ.','கையெழுத்துப் படங்களை உரை, PDF, புத்தகம், தாளாக மாற்றுங்கள் — 100% இலவசம்.'],
+st1:['1. Upload','1. උඩුගත කරන්න','1. பதிவேற்று'],st2:['2. Edit text','2. පෙළ සංස්කරණය','2. உரை திருத்து'],st3:['3. Design','3. නිර්මාණය','3. வடிவமை'],st4:['4. Download','4. බාගන්න','4. பதிவிறக்கு'],
+dropTxt:['Drop handwriting photos here or click to choose','අත්අකුරු ඡායාරූප මෙතැනට දමන්න හෝ තේරීමට ක්ලික් කරන්න','கையெழுத்துப் படங்களை இங்கே இடுங்கள் அல்லது தேர்ந்தெடுக்க கிளிக் செய்யுங்கள்'],
+dropSub:['You can add many photos at once (JPG, PNG, WEBP…)','එකවර ඡායාරූප කිහිපයක් එක් කළ හැක (JPG, PNG, WEBP…)','ஒரே நேரத்தில் பல படங்களைச் சேர்க்கலாம் (JPG, PNG, WEBP…)'],
+camera:['📸 Take photo','📸 ඡායාරූපයක් ගන්න','📸 படம் எடு'],manual:['Skip – type text myself','මඟ හැර – පෙළ අතින් ටයිප් කරන්න','தவிர் – உரையை நானே தட்டச்சு செய்கிறேன்'],clearAll:['Clear all','සියල්ල මකන්න','அனைத்தையும் அழி'],
+engineH:['Reading settings','කියවීමේ සැකසුම්','வாசிப்பு அமைப்புகள்'],hwLang:['Handwriting language','අත්අකුරු භාෂාව','கையெழுத்து மொழி'],engine:['Reading engine','කියවීමේ එන්ජිම','வாசிப்பு இயந்திரம்'],
+auto:['Auto-detect','ස්වයංක්‍රීයව හඳුනාගන්න','தானாகக் கண்டறி'],si:['Sinhala','සිංහල','சிங்களம்'],en:['English','ඉංග්‍රීසි','ஆங்கிலம்'],ta:['Tamil','දෙමළ','தமிழ்'],mixed:['Mixed languages','මිශ්‍ර භාෂා','கலப்பு மொழிகள்'],
+e_puter:['AI – Puter (free, no key)','AI – Puter (නොමිලේ, යතුරක් අවශ්‍ය නැත)','AI – Puter (இலவசம், விசை தேவையில்லை)'],
+e_gemini:['AI – Google Gemini (free key, best accuracy)','AI – Google Gemini (නොමිලේ යතුර, හොඳම නිරවද්‍යතාව)','AI – Google Gemini (இலவச விசை, சிறந்த துல்லியம்)'],
+e_tess:['Offline – Tesseract (printed text, weak on handwriting)','Offline – Tesseract (මුද්‍රිත අකුරු, අත්අකුරු දුර්වලයි)','Offline – Tesseract (அச்சு எழுத்து, கையெழுத்தில் பலவீனம்)'],
+gkey:['Gemini API key','Gemini API යතුර','Gemini API விசை'],getKey:['Get free key','නොමිලේ යතුරක් ගන්න','இலவச விசை பெறு'],model:['Model','ආකෘතිය','மாதிரி'],optional:['optional','විකල්ප','விருப்பம்'],
+enhance:['Enhance photo before reading (recommended)','කියවීමට පෙර ඡායාරූපය පැහැදිලි කරන්න (නිර්දේශිතයි)','வாசிப்பதற்கு முன் படத்தைத் தெளிவாக்கு (பரிந்துரை)'],
+engineNote:['Tip: For Sinhala / Tamil handwriting use Google Gemini with a free key – it reads handwriting best. The AI copies exactly what is written (no spelling fixes). You can proof-read next to the photo in step 2.','ඉඟිය: සිංහල / දෙමළ අත්අකුරු සඳහා නොමිලේ යතුරක් සහිත Google Gemini භාවිතා කරන්න – එය අත්අකුරු හොඳම කියවයි. AI ලියා ඇති ආකාරයටම පිටපත් කරයි (අක්ෂර වින්‍යාසය නිවැරදි නොකරයි). 2 වන පියවරේදී ඡායාරූපය අසල සිට පිරික්සිය හැක.','குறிப்பு: சிங்கள / தமிழ் கையெழுத்துக்கு இலவச விசையுடன் Google Gemini பயன்படுத்துங்கள் – அது கையெழுத்தை சிறப்பாக வாசிக்கும். AI எழுதியபடியே நகலெடுக்கும் (எழுத்துப்பிழை திருத்தாது). படி 2-இல் படத்துடன் ஒப்பிட்டுச் சரிபார்க்கலாம்.'],
+privacy:['Your photos are processed in your browser and sent only to the reading engine you choose.','ඔබේ ඡායාරූප බ්‍රවුසරයේම සකසන අතර ඔබ තෝරන කියවීමේ එන්ජිමට පමණක් යැවේ.','உங்கள் படங்கள் உலாவியிலேயே செயலாக்கப்பட்டு, நீங்கள் தேர்ந்தெடுக்கும் வாசிப்பு இயந்திரத்துக்கு மட்டுமே அனுப்பப்படும்.'],
+readAll:['🔍 Read text from photos','🔍 ඡායාරූපවලින් පෙළ කියවන්න','🔍 படங்களிலிருந்து உரையை வாசி'],
+waiting:['Waiting','බලා සිටී','காத்திருக்கிறது'],reading:['Reading…','කියවමින්…','வாசிக்கிறது…'],done:['Done','අවසන්','முடிந்தது'],error:['Error','දෝෂයකි','பிழை'],
+rotate:['Rotate','කරකවන්න','சுழற்று'],remove:['Remove','ඉවත් කරන්න','நீக்கு'],
+editHint:['Compare the photo with the text and fix anything the reader got wrong. Nothing is ever changed unless you ask the AI.','ඡායාරූපය පෙළ සමඟ සසඳා වැරදි නිවැරදි කරන්න. ඔබ AI ගෙන් ඉල්ලන තුරු කිසිවක් වෙනස් නොවේ.','படத்தை உரையுடன் ஒப்பிட்டுத் தவறுகளைத் திருத்துங்கள். நீங்கள் AI-யிடம் கேட்கும் வரை எதுவும் மாறாது.'],
+photo:['Photo','ඡායාරූපය','படம்'],text:['Text','පෙළ','உரை'],noImg:['This page has no photo (typed page).','මෙම පිටුවට ඡායාරූපයක් නැත (ටයිප් කළ පිටුව).','இந்தப் பக்கத்துக்கு படம் இல்லை (தட்டச்சு பக்கம்).'],
+undo:['↶ Undo','↶ පසුගමනය','↶ செயல்தவிர்'],redo:['↷ Redo','↷ නැවත','↷ மீண்டும்'],cut:['✂ Cut','✂ කපන්න','✂ வெட்டு'],copy:['⧉ Copy','⧉ පිටපත්','⧉ நகலெடு'],paste:['📋 Paste','📋 අලවන්න','📋 ஒட்டு'],selAll:['Select all','සියල්ල තෝරන්න','அனைத்தையும் தேர்'],
+again:['↻ Read this page again','↻ මෙම පිටුව නැවත කියවන්න','↻ இந்தப் பக்கத்தை மீண்டும் வாசி'],addPage:['+ Add page','+ පිටුවක් එක් කරන්න','+ பக்கம் சேர்'],delPage:['🗑 Delete page','🗑 පිටුව මකන්න','🗑 பக்கத்தை நீக்கு'],merge:['Merge all pages','සියලු පිටු එකතු කරන්න','அனைத்துப் பக்கங்களையும் இணை'],split:['Split at cursor','කර්සරයෙන් බෙදන්න','கர்சரில் பிரி'],
+findRep:['Find & replace','සොයා ප්‍රතිස්ථාපනය','கண்டுபிடி & மாற்று'],find:['Find','සොයන්න','தேடு'],repWith:['Replace with','මෙයින් ප්‍රතිස්ථාපනය','இதனால் மாற்று'],repPage:['Replace in this page','මෙම පිටුවේ','இந்தப் பக்கத்தில் மாற்று'],repAll:['Replace in all pages','සියලු පිටුවල','அனைத்துப் பக்கங்களிலும் மாற்று'],
+back:['← Back','← ආපසු','← பின்'],next:['Next →','ඊළඟ →','அடுத்து →'],page:['Page','පිටුව','பக்கம்'],pagesWord:['pages','පිටු','பக்கங்கள்'],
+outType:['Output type','ප්‍රතිදාන වර්ගය','வெளியீட்டு வகை'],ty_text:['Text','පෙළ','உரை'],ty_pdf:['PDF document','PDF ලේඛනය','PDF ஆவணம்'],ty_book:['Book','පොත','புத்தகம்'],ty_paper:['Paper','කඩදාසිය','தாள்'],template:['Template','අච්චුව','வார்ப்புரு'],
+pageH:['Page & margins','පිටුව සහ ආන්තික','பக்கம் & ஓரங்கள்'],size:['Page size','පිටු ප්‍රමාණය','பக்க அளவு'],orient:['Orientation','දිශානතිය','திசை'],portrait:['Portrait','සිරස්','நிமிர்வு'],landscape:['Landscape','තිරස්','குறுக்கு'],
+mTop:['Top (mm)','ඉහළ (mm)','மேல் (mm)'],mBottom:['Bottom (mm)','පහළ (mm)','கீழ் (mm)'],mInner:['Inner/Left (mm)','ඇතුළත/වම (mm)','உள்/இடது (mm)'],mOuter:['Outer/Right (mm)','පිටත/දකුණ (mm)','வெளி/வலது (mm)'],
+pageNums:['Page numbers','පිටු අංක','பக்க எண்கள்'],none:['None','නැත','இல்லை'],pnCenter:['Bottom centre','පහළ මැද','கீழ் மையம்'],pnOutside:['Bottom outside','පහළ පිටත','கீழ் வெளி'],pnTop:['Top right','ඉහළ දකුණ','மேல் வலது'],
+textH:['Text','පෙළ','உரை'],font:['Font','අකුරු වර්ගය','எழுத்துரு'],fontSize:['Font size (px)','අකුරු ප්‍රමාණය (px)','எழுத்து அளவு (px)'],indent:['First-line indent (px)','පළමු පේළි ඇතුළු කිරීම (px)','முதல் வரி உள்தள்ளல் (px)'],lineSp:['Line spacing','පේළි පරතරය','வரி இடைவெளி'],
+align:['Alignment','පෙළගැස්ම','சீரமைப்பு'],aLeft:['Left','වමට','இடது'],aJust:['Justify','සමපාත','இருபுறமும்'],aCenter:['Centre','මැද','மையம்'],ink:['Ink colour','තීන්ත වර්ණය','மை நிறம்'],
+paperH:['Paper & lines','කඩදාසි සහ රේඛා','தாள் & கோடுகள்'],lines:['Lines','රේඛා','கோடுகள்'],ruled:['Ruled','රේඛිත','கோடிட்ட'],gridL:['Grid','ජාලය','கட்டம்'],dotsL:['Dotted','තිත්','புள்ளி'],lineCol:['Line colour','රේඛා වර්ණය','கோட்டு நிறம்'],paperCol:['Paper colour','කඩදාසි වර්ණය','தாள் நிறம்'],marginCol:['Margin line colour','ආන්තික රේඛා වර්ණය','ஓரக் கோட்டு நிறம்'],marginLine:['Margin line','ආන්තික රේඛාව','ஓரக் கோடு'],
+contentH:['Content & details','අන්තර්ගතය සහ විස්තර','உள்ளடக்கம் & விவரங்கள்'],title:['Title / Subject','මාතෘකාව / විෂය','தலைப்பு / பாடம்'],author:['Author / Name','කර්තෘ / නම','ஆசிரியர் / பெயர்'],date:['Date','දිනය','தேதி'],recipient:['To (receiver)','ලබන්නා','பெறுநர்'],subject:['Subject','විෂය','பொருள்'],
+keepBreaks:['Keep handwritten line breaks','අත්අකුරු පේළි බිඳීම් තබාගන්න','கையெழுத்து வரி முறிவுகளை வைத்திரு'],paraGap:['Blank line between paragraphs','ඡේද අතර හිස් පේළියක්','பத்திகளுக்கிடையே வெற்று வரி'],perPhoto:['New page for each photo','එක් එක් ඡායාරූපයට නව පිටුවක්','ஒவ்வொரு படத்துக்கும் புதிய பக்கம்'],
+headings:['Lines starting with # are headings','# ලෙස ආරම්භ වන පේළි මාතෘකා වේ','# எனத் தொடங்கும் வரிகள் தலைப்புகள்'],titlePage:['Title page','මාතෘකා පිටුව','தலைப்புப் பக்கம்'],toc:['Table of contents','පටුන','உள்ளடக்கப் பட்டியல்'],runHead:['Running header','ශීර්ෂ පෙළ','மேல் தலைப்பு'],contents:['Contents','පටුන','உள்ளடக்கம்'],untitled:['Untitled','මාතෘකාවක් නැත','தலைப்பு இல்லை'],
+zoom:['Zoom','විශාලනය','பெரிதாக்கு'],textPrevNote:['Text output – download from the next step.','පෙළ ප්‍රතිදානය – ඊළඟ පියවරෙන් බාගන්න.','உரை வெளியீடு – அடுத்த படியில் பதிவிறக்குங்கள்.'],
+pdfNote:['Pixel-perfect PDF of your design. For selectable text use Print / Save as PDF.','ඔබේ නිර්මාණයේ නිවැරදි PDF. තෝරාගත හැකි පෙළ සඳහා මුද්‍රණය / PDF ලෙස සුරකින්න භාවිතා කරන්න.','உங்கள் வடிவமைப்பின் துல்லியமான PDF. தேர்ந்தெடுக்கக்கூடிய உரைக்கு அச்சிடு / PDF ஆக சேமி பயன்படுத்துங்கள்.'],
+quality:['Quality','ගුණාත්මකභාවය','தரம்'],dlPdf:['⬇ Download PDF','⬇ PDF බාගන්න','⬇ PDF பதிவிறக்கு'],printPdf:['🖨 Print / Save as PDF (selectable text)','🖨 මුද්‍රණය / PDF ලෙස සුරකින්න (තෝරාගත හැකි පෙළ)','🖨 அச்சிடு / PDF ஆக சேமி (தேர்ந்தெடுக்கக்கூடிய உரை)'],
+txtSep:['Blank line between pages','පිටු අතර හිස් පේළියක්','பக்கங்களுக்கிடையே வெற்று வரி'],dlTxt:['⬇ Download text (.txt)','⬇ පෙළ බාගන්න (.txt)','⬇ உரை பதிவிறக்கு (.txt)'],dlDoc:['⬇ Download Word (.doc)','⬇ Word බාගන්න (.doc)','⬇ Word பதிவிறக்கு (.doc)'],copyAll:['⧉ Copy all text','⧉ සියලු පෙළ පිටපත් කරන්න','⧉ முழு உரையையும் நகலெடு'],
+bkNote:['Your text is saved in this browser automatically. Download a backup to keep it safe.','ඔබේ පෙළ මෙම බ්‍රවුසරයේ ස්වයංක්‍රීයව සුරැකේ. ආරක්ෂාවට බැකප් එකක් බාගන්න.','உங்கள் உரை இந்த உலாவியில் தானாகச் சேமிக்கப்படும். பாதுகாப்பிற்கு காப்புப்பிரதி பதிவிறக்குங்கள்.'],dlBk:['⬇ Download backup','⬇ බැකප් බාගන්න','⬇ காப்புப்பிரதி பதிவிறக்கு'],restore:['Restore backup','බැකප් ප්‍රතිස්ථාපනය','காப்புப்பிரதி மீட்டமை'],
+preparing:['Preparing PDF…','PDF සකසමින්…','PDF தயாராகிறது…'],cancel:['Cancel','අවලංගු කරන්න','ரத்து'],copied:['Copied','පිටපත් කළා','நகலெடுக்கப்பட்டது'],saved:['Downloaded','බාගත කළා','பதிவிறக்கப்பட்டது'],
+aiH:['AI assistant','AI සහායක','AI உதவியாளர்'],thisPage:['This page','මෙම පිටුව','இந்தப் பக்கம்'],allPages:['All pages','සියලු පිටු','அனைத்துப் பக்கங்கள்'],
+aiPh:['Ask AI to fix, format or translate…','නිවැරදි කිරීමට, හැඩගැන්වීමට හෝ පරිවර්තනයට AI ඉල්ලන්න…','திருத்த, வடிவமைக்க அல்லது மொழிபெயர்க்க AI-யிடம் கேளுங்கள்…'],send:['Send','යවන්න','அனுப்பு'],working:['Working…','වැඩ කරමින්…','வேலை செய்கிறது…'],
+apply:['Apply to text','පෙළට යොදන්න','உரையில் பயன்படுத்து'],discard:['Discard','ඉවත දමන්න','நிராகரி'],applied:['Applied','යොදන ලදී','பயன்படுத்தப்பட்டது'],aiHello:['Hi! I can check mistakes, compare with the photo, fix spelling, add a title, make a poem layout or translate. I never change your text unless you ask.','ආයුබෝවන්! මට වැරදි පරීක්ෂා කිරීම, ඡායාරූපය සමඟ සැසඳීම, අක්ෂර වින්‍යාසය නිවැරදි කිරීම, මාතෘකාවක් එක් කිරීම, කවි ආකෘතිය හෝ පරිවර්තනය කළ හැක. ඔබ ඉල්ලන තුරු ඔබේ පෙළ වෙනස් නොකරමි.','வணக்கம்! பிழைகளைச் சரிபார்க்க, படத்துடன் ஒப்பிட, எழுத்துப்பிழை திருத்த, தலைப்பு சேர்க்க, கவிதை வடிவம் அமைக்க அல்லது மொழிபெயர்க்க என்னால் முடியும். நீங்கள் கேட்கும் வரை உங்கள் உரையை மாற்ற மாட்டேன்.'],
+c_check:['Check mistakes','වැරදි පරීක්ෂා කරන්න','பிழைகளைச் சரிபார்'],c_verify:['Verify with photo','ඡායාරූපය සමඟ තහවුරු කරන්න','படத்துடன் சரிபார்'],c_spell:['Fix spelling','අක්ෂර වින්‍යාසය නිවැරදි කරන්න','எழுத்துப்பிழை திருத்து'],c_title:['Add a title','මාතෘකාවක් එක් කරන්න','தலைப்பு சேர்'],c_poem:['Poem layout','කවි ආකෘතිය','கவிதை வடிவம்'],c_clean:['Clean spacing','පරතර පිරිසිදු කරන්න','இடைவெளியைச் சீரமை'],c_si:['→ Sinhala','→ සිංහල','→ சிங்களம்'],c_en:['→ English','→ ඉංග්‍රීසි','→ ஆங்கிலம்'],c_ta:['→ Tamil','→ දෙමළ','→ தமிழ்'],
+needKey:['Enter your Gemini API key first.','මුලින්ම ඔබේ Gemini API යතුර ඇතුළත් කරන්න.','முதலில் உங்கள் Gemini API விசையை உள்ளிடுங்கள்.'],noPhotos:['Add photos first.','මුලින්ම ඡායාරූප එක් කරන්න.','முதலில் படங்களைச் சேர்க்கவும்.'],
+t_plain:['Plain document','සරල ලේඛනය','எளிய ஆவணம்'],t_letter:['Letter','ලිපිය','கடிதம்'],t_report:['Report','වාර්තාව','அறிக்கை'],t_essay:['Essay (double-spaced)','රචනා (ද්විත්ව පරතරය)','கட்டுரை (இரட்டை இடைவெளி)'],t_poem:['Poem / Song','කවි / ගීත','கவிதை / பாடல்'],
+t_novel:['Novel / Story book','නවකතා / කතා පොත','நாவல் / கதைப் புத்தகம்'],t_textbook:['Textbook','පෙළ පොත','பாடநூல்'],t_poetry:['Poetry book','කාව්‍ය පොත','கவிதை நூல்'],t_pocket:['Pocket book (A6)','සාක්කු පොත (A6)','பாக்கெட் புத்தகம் (A6)'],
+t_ruled:['Ruled notebook','රේඛිත සටහන් පොත','கோடிட்ட நோட்டு'],t_wide:['Wide ruled','පළල රේඛිත','அகலக் கோடு'],t_grid:['Grid paper','ජාල කඩදාසි','கட்டத் தாள்'],t_dot:['Dotted paper','තිත් කඩදාසි','புள்ளித் தாள்'],t_blank:['Plain white','සුදු කඩදාසි','வெள்ளைத் தாள்'],t_legal:['Legal pad (yellow)','කහ ලේඛන පෑඩ්','மஞ்சள் பேடு'],t_exam:['Exam answer sheet','විභාග පිළිතුරු පත්‍රය','தேர்வு விடைத்தாள்'],t_diary:['Diary page','දින පොත් පිටුව','நாட்குறிப்புப் பக்கம்'],
+f_name:['Name','නම','பெயர்'],f_subject:['Subject','විෂය','பாடம்'],f_date:['Date','දිනය','தேதி'],f_marks:['Marks','ලකුණු','மதிப்பெண்']
+};
+const tt=k=>(D[k]&&(D[k][LI[L]]||D[k][0]))||k;
+function applyLang(){
+ document.documentElement.lang=L;
+ $$('[data-i18n]').forEach(e=>e.textContent=tt(e.dataset.i18n));
+ $$('[data-i18n-ph]').forEach(e=>e.placeholder=tt(e.dataset.i18nPh));
+ $$('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l===L));
+ renderSteps();renderThumbs();renderEditor();renderTypeSeg();renderTpls();renderChips();schedPreview();
+}
+
+/* ================= state ================= */
+const LS='handscan_v1';
+let items=[];let cur=0;let step=1;
+const eng={engine:'puter',gkey:'',gmodel:'gemini-2.5-flash',pmodel:'',ocrLang:'auto',enhance:true};
+const D0={type:'pdf',tpl:'plain',size:'A4',orient:'portrait',font:'serif',fs:16,lhm:1.7,align:'left',indent:0,mt:25,mb:25,mi:25,mo:25,lines:'none',lineColor:'#9db7e8',paper:'#ffffff',ink:'#111111',marginLine:false,marginColor:'#e57373',pageNums:'center',keepBreaks:true,perPhoto:false,paraGap:true,headings:true,titlePage:false,toc:false,runHead:false,special:'',title:'',author:'',date:'',recipient:''};
+let d={...D0};
+const TPL={
+ plain:{type:'pdf'},
+ letter:{type:'pdf',special:'letter',pageNums:'none',mi:28,mo:22},
+ report:{type:'pdf',special:'report',align:'justify',keepBreaks:false,titlePage:true,mi:28,mo:22},
+ essay:{type:'pdf',special:'essay',lhm:2.2,keepBreaks:false,paraGap:false,indent:36,pageNums:'topright',mt:25,mb:25,mi:25,mo:25},
+ poem:{type:'pdf',special:'poem',align:'center',fs:18,lhm:1.9,pageNums:'none',mt:30,mb:30,mi:30,mo:30},
+ novel:{type:'book',size:'A5',font:'book',fs:14,lhm:1.6,align:'justify',indent:22,keepBreaks:false,paraGap:false,mt:20,mb:22,mi:20,mo:14,pageNums:'center',titlePage:true,toc:true,runHead:true},
+ textbook:{type:'book',size:'B5',font:'sans',fs:14,lhm:1.65,align:'left',indent:0,keepBreaks:false,paraGap:true,mt:20,mb:22,mi:22,mo:16,pageNums:'outside',titlePage:true,toc:true,runHead:true},
+ poetry:{type:'book',size:'A5',font:'serif',fs:15,lhm:1.8,align:'center',indent:0,keepBreaks:true,paraGap:true,mt:24,mb:24,mi:18,mo:18,pageNums:'center',titlePage:true,toc:true,runHead:false},
+ pocket:{type:'book',size:'A6',font:'book',fs:12,lhm:1.55,align:'justify',indent:18,keepBreaks:false,paraGap:false,mt:12,mb:14,mi:12,mo:9,pageNums:'center',titlePage:true,toc:false,runHead:false},
+ ruled:{type:'paper',font:'sans',fs:16,lhm:1.7,lines:'ruled',marginLine:true,pageNums:'none',mt:22,mb:15,mi:30,mo:12},
+ wide:{type:'paper',font:'sans',fs:18,lhm:1.85,lines:'ruled',marginLine:true,pageNums:'none',mt:22,mb:15,mi:30,mo:12},
+ grid:{type:'paper',font:'sans',fs:13,lhm:1.46,lines:'grid',pageNums:'none',mt:12,mb:12,mi:12,mo:12,lineColor:'#a8c4e8'},
+ dot:{type:'paper',font:'sans',fs:13,lhm:1.46,lines:'dots',pageNums:'none',mt:12,mb:12,mi:12,mo:12,lineColor:'#7b8794'},
+ blank:{type:'paper',font:'sans',fs:16,lhm:1.7,lines:'none',pageNums:'none',mt:20,mb:20,mi:20,mo:20},
+ legal:{type:'paper',font:'sans',fs:16,lhm:1.7,lines:'ruled',paper:'#fff6a8',lineColor:'#7aa7d6',marginLine:true,marginColor:'#e05a5a',size:'Letter',pageNums:'none',mt:22,mb:15,mi:32,mo:12},
+ exam:{type:'paper',special:'exam',font:'sans',fs:16,lhm:1.7,lines:'ruled',marginLine:true,pageNums:'center',mt:18,mb:18,mi:28,mo:12},
+ diary:{type:'paper',special:'diary',size:'A5',font:'hand',fs:22,lhm:1.4,lines:'ruled',marginLine:true,pageNums:'none',mt:16,mb:14,mi:20,mo:10,lineColor:'#c9b8a0',paper:'#fffdf5'}
+};
+const TYPE_TPLS={pdf:['plain','letter','report','essay','poem'],book:['novel','textbook','poetry','pocket'],paper:['ruled','wide','grid','dot','blank','legal','exam','diary'],text:[]};
+const meta=()=>({title:d.title,author:d.author,date:d.date,recipient:d.recipient});
+function applyTpl(id){const m=meta();d={...D0,...TPL[id],tpl:id,...m};syncCtl();schedPreview();renderTypeSeg();renderTpls();saveSoon()}
+function setType(ty){if(ty==='text'){d.type='text'}else{applyTpl(TYPE_TPLS[ty][0])}renderTypeSeg();renderTpls();syncCtl();schedPreview();saveSoon()}
+
+let saveT=0;function saveSoon(){clearTimeout(saveT);saveT=setTimeout(save,400)}
+function save(){try{localStorage.setItem(LS,JSON.stringify({L,texts:items.map(i=>i.text),eng,d,cur}))}catch(e){}}
+function load(){try{const j=JSON.parse(localStorage.getItem(LS)||'null');if(!j)return;L=j.L||'en';Object.assign(eng,j.eng||{});Object.assign(d,j.d||{});(j.texts||[]).forEach(tx=>items.push(newItem(null,tx)));cur=Math.min(j.cur||0,Math.max(0,items.length-1))}catch(e){}}
+
+/* ================= helpers ================= */
+let toastT;function toast(m,ms=2600){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>t.style.display='none',ms)}
+let abort=false;
+function busy(msg,pct){$('#busy').style.display='flex';$('#busyMsg').textContent=msg;$('#busyBar').style.width=Math.max(0,Math.min(100,pct||0))+'%'}
+function busyOff(){$('#busy').style.display='none'}
+const loaded={};
+function loadScript(src){if(loaded[src])return loaded[src];return loaded[src]=new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>{delete loaded[src];rej(new Error('Cannot load '+src))};document.head.appendChild(s)})}
+function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(a.href)},1500)}
+const fname=()=>((d.title||'handscan').trim().replace(/[\\/:*?"<>|]+/g,'_').slice(0,60)||'handscan');
+let idc=1;function newItem(file,text){return{id:idc++,file,url:file?URL.createObjectURL(file):null,text:text||'',status:text?'done':'new',err:''}}
+
+/* ================= steps ================= */
+function renderSteps(){const el=$('#steps');el.innerHTML='';[1,2,3,4].forEach(n=>{const b=document.createElement('button');b.textContent=tt('st'+n);b.className=n===step?'on':'';b.onclick=()=>goStep(n);el.appendChild(b)})}
+function goStep(n){
+ if(n>=2&&!items.length){items.push(newItem(null,''));cur=0}
+ step=n;$$('.step').forEach((s,i)=>s.classList.toggle('on',i+1===n));renderSteps();
+ if(n===2)renderEditor();if(n===3){syncCtl();schedPreview()}window.scrollTo(0,0);
+}
+
+/* ================= step 1: upload ================= */
+function addFiles(list){[...list].filter(f=>/^image\//.test(f.type)||/\.(jpe?g|png|webp|gif|bmp|heic)$/i.test(f.name)).forEach(f=>items.push(newItem(f,'')));renderThumbs();save()}
+function renderThumbs(){
+ const el=$('#thumbs');el.innerHTML='';
+ items.forEach((it,i)=>{
+  const c=document.createElement('div');c.className='th';
+  const st=it.status==='done'?'done':it.status==='busy'?'busy':it.status==='err'?'err':'';
+  c.innerHTML=(it.url?`<img src="${it.url}" alt="">`:`<div class="ph" style="height:130px">✎</div>`)+`<span class="badge ${st}">${i+1} · ${it.status==='done'?tt('done'):it.status==='busy'?tt('reading'):it.status==='err'?tt('error'):tt('waiting')}</span><div class="bar"><span><button data-a="l">◀</button><button data-a="r">▶</button></span><span><button data-a="rot" title="${tt('rotate')}">⟳</button><button data-a="del" title="${tt('remove')}">✕</button></span></div>`;
+  c.querySelector('[data-a=l]').onclick=()=>{if(i>0){[items[i-1],items[i]]=[items[i],items[i-1]];renderThumbs();save()}};
+  c.querySelector('[data-a=r]').onclick=()=>{if(i<items.length-1){[items[i+1],items[i]]=[items[i],items[i+1]];renderThumbs();save()}};
+  c.querySelector('[data-a=rot]').onclick=async()=>{if(it.file){await rotateItem(it,90);it.status='new';renderThumbs()}};
+  c.querySelector('[data-a=del]').onclick=()=>{items.splice(i,1);cur=Math.min(cur,Math.max(0,items.length-1));renderThumbs();save()};
+  el.appendChild(c)});
+}
+async function loadImg(url){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=url})}
+async function rotateItem(it,deg){
+ const im=await loadImg(it.url),c=document.createElement('canvas'),sw=deg%180!==0;
+ c.width=sw?im.naturalHeight:im.naturalWidth;c.height=sw?im.naturalWidth:im.naturalHeight;
+ const x=c.getContext('2d');x.translate(c.width/2,c.height/2);x.rotate(deg*Math.PI/180);x.drawImage(im,-im.naturalWidth/2,-im.naturalHeight/2);
+ const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));URL.revokeObjectURL(it.url);it.file=b;it.url=URL.createObjectURL(b);
+}
+async function prepImage(it){
+ const im=await loadImg(it.url),mx=2200,sc=Math.min(1,mx/Math.max(im.naturalWidth,im.naturalHeight));
+ const c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);
+ const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);
+ if(eng.enhance&&'filter' in x)x.filter='grayscale(1) contrast(1.35) brightness(1.05)';
+ x.drawImage(im,0,0,c.width,c.height);
+ const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.9));
+ const b64=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(String(fr.result).split(',')[1]);fr.readAsDataURL(blob)});
+ return{blob,b64};
+}
+
+/* ================= AI engines ================= */
+const LNAME={auto:'any language (auto-detect; the text may mix Sinhala, Tamil and English)',si:'Sinhala',en:'English',ta:'Tamil',mixed:'a mix of Sinhala, English and Tamil'};
+function ocrPrompt(){return `You are an expert handwriting OCR engine. Transcribe ALL handwritten text in the image exactly as written.
+Language: ${LNAME[eng.ocrLang]||LNAME.auto}.
+Rules:
+- Keep the original script. Never translate or transliterate.
+- Keep line breaks exactly as in the image (one output line per written line). Leave a blank line where there is a clear paragraph gap.
+- Do NOT correct spelling, grammar or punctuation. Copy mistakes exactly as written.
+- Read Sinhala and Tamil letters very carefully (for example Sinhala ල/ළ, න/ණ, ශ/ෂ/ස, ත/ථ, ද/ධ, vowel signs and conjuncts).
+- If a word is truly unreadable write [?].
+- Ignore ruled lines, margins, stains and page edges.
+- Output ONLY the transcription: no explanations, no markdown, no quotes.`}
+function puterText(r){if(typeof r==='string')return r;const c=(r&&r.message&&r.message.content)!=null?r.message.content:(r&&r.text)!=null?r.text:r;if(Array.isArray(c))return c.map(x=>x.text||'').join('');if(typeof c==='string')return c;return String(r)}
+async function callPuter(prompt,blob){
+ await loadScript('https://js.puter.com/v2/');
+ const opt=eng.pmodel.trim()?{model:eng.pmodel.trim()}:undefined;
+ const file=blob?new File([blob],'page.jpg',{type:'image/jpeg'}):null;
+ let r;
+ if(file) r=opt?await puter.ai.chat(prompt,file,opt):await puter.ai.chat(prompt,file);
+ else r=opt?await puter.ai.chat(prompt,opt):await puter.ai.chat(prompt);
+ return puterText(r);
+}
+async function callGemini(prompt,b64){
+ if(!eng.gkey.trim())throw new Error(tt('needKey'));
+ const parts=[{text:prompt}];if(b64)parts.push({inline_data:{mime_type:'image/jpeg',data:b64}});
+ const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(eng.gmodel.trim()||'gemini-2.5-flash')}:generateContent?key=${encodeURIComponent(eng.gkey.trim())}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{temperature:0}})});
+ const j=await r.json().catch(()=>({}));
+ if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
+ const p=j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts;
+ if(!p)throw new Error('Empty response ('+((j.promptFeedback&&j.promptFeedback.blockReason)||'no text')+')');
+ return p.map(x=>x.text||'').join('');
+}
+async function callTess(it){
+ await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js');
+ const map={auto:'eng+sin+tam',si:'sin',en:'eng',ta:'tam',mixed:'sin+eng'};
+ const {blob}=await prepImage(it);
+ const r=await Tesseract.recognize(blob,map[eng.ocrLang]||'eng');
+ return r.data.text;
+}
+function cleanOcr(s){return String(s||'').replace(/^```[a-z]*\n?/i,'').replace(/\n?```$/,'').replace(/\r/g,'').replace(/[ \t]+$/gm,'').replace(/\n{4,}/g,'\n\n\n').trim()}
+async function ocrOne(it){
+ it.status='busy';it.err='';renderThumbs();
+ try{
+  let tx;
+  if(eng.engine==='tess')tx=await callTess(it);
+  else{const {blob,b64}=await prepImage(it);tx=eng.engine==='gemini'?await callGemini(ocrPrompt(),b64):await callPuter(ocrPrompt(),blob)}
+  it.text=cleanOcr(tx);it.status='done';
+ }catch(e){it.status='err';it.err=String(e&&e.message||e);throw e}
+ finally{renderThumbs()}
+}
+async function readAll(){
+ const todo=items.filter(i=>i.file&&i.status!=='done');
+ const list=todo.length?todo:items.filter(i=>i.file);
+ if(!list.length){toast(tt('noPhotos'));return}
+ if(eng.engine==='gemini'&&!eng.gkey.trim()){toast(tt('needKey'));$('#gkey').focus();return}
+ abort=false;let fails=0,lastErr='';
+ for(let k=0;k<list.length;k++){
+  if(abort)break;busy(`${tt('reading')} ${k+1}/${list.length}`,k/list.length*100);
+  try{await ocrOne(list[k])}catch(e){fails++;lastErr=list[k].err}
+ }
+ busyOff();save();
+ if(fails)toast(`${fails} × ${tt('error')}: ${lastErr}`,7000);
+ if(fails<list.length){cur=Math.max(0,items.indexOf(list.find(i=>i.status==='done')));goStep(2)}
+}
+
+/* ================= step 2: editor ================= */
+const ta=()=>$('#ta');
+function renderEditor(){
+ if(!items.length)return;cur=Math.min(cur,items.length-1);
+ const pl=$('#plist');pl.innerHTML='';
+ items.forEach((it,i)=>{const e=document.createElement('div');e.className='pi'+(i===cur?' on':'');e.innerHTML=(it.url?`<img src="${it.url}" alt="">`:`<div class="ph">✎</div>`)+`<div>${tt('page')} ${i+1}</div>`;e.onclick=()=>{cur=i;renderEditor()};pl.appendChild(e)});
+ const it=items[cur];const img=$('#pimg');
+ if(it.url){img.src=it.url;img.style.display='block';$('#noimg').style.display='none'}else{img.removeAttribute('src');img.style.display='none';$('#noimg').style.display='block'}
+ img.style.width=$('#imgZoom').value+'%';
+ ta().value=it.text||'';
+}
+function setTA(txt){const e=ta();e.focus();e.select();let ok=false;try{ok=document.execCommand('insertText',false,txt)}catch(_){}if(!ok)e.value=txt;items[cur].text=e.value;saveSoon();schedPreview()}
+function insertTA(txt){const e=ta();e.focus();let ok=false;try{ok=document.execCommand('insertText',false,txt)}catch(_){}if(!ok){const s=e.selectionStart,t=e.selectionEnd;e.setRangeText(txt,s,t,'end')}items[cur].text=e.value;saveSoon();schedPreview()}
+function wireEditor(){
+ ta().addEventListener('input',()=>{items[cur].text=ta().value;saveSoon();schedPreview()});
+ $('#imgZoom').oninput=e=>{$('#pimg').style.width=e.target.value+'%'};
+ $('#rotL').onclick=async()=>{const it=items[cur];if(it.file){await rotateItem(it,-90);renderEditor()}};
+ $('#rotR').onclick=async()=>{const it=items[cur];if(it.file){await rotateItem(it,90);renderEditor()}};
+ $('#bUndo').onclick=()=>{ta().focus();document.execCommand('undo');items[cur].text=ta().value;saveSoon()};
+ $('#bRedo').onclick=()=>{ta().focus();document.execCommand('redo');items[cur].text=ta().value;saveSoon()};
+ $('#bSel').onclick=()=>{ta().focus();ta().select()};
+ $('#bCopy').onclick=async()=>{const e=ta(),s=e.value.substring(e.selectionStart,e.selectionEnd)||e.value;try{await navigator.clipboard.writeText(s);toast(tt('copied'))}catch(_){e.focus();document.execCommand('copy')}};
+ $('#bCut').onclick=async()=>{const e=ta(),s=e.value.substring(e.selectionStart,e.selectionEnd);if(!s)return;try{await navigator.clipboard.writeText(s)}catch(_){}e.focus();insertTA('')};
+ $('#bPaste').onclick=async()=>{try{const s=await navigator.clipboard.readText();insertTA(s)}catch(_){toast('Ctrl+V')}};
+ $('#bAgain').onclick=async()=>{const it=items[cur];if(!it.file){toast(tt('noImg'));return}if(eng.engine==='gemini'&&!eng.gkey.trim()){toast(tt('needKey'));return}busy(tt('reading'),30);try{await ocrOne(it);renderEditor();save()}catch(e){toast(it.err,6000)}busyOff()};
+ $('#bAdd').onclick=()=>{items.splice(cur+1,0,newItem(null,''));cur++;renderEditor();save()};
+ $('#bDel').onclick=()=>{if(!confirm(tt('delPage')+'?'))return;items.splice(cur,1);if(!items.length)items.push(newItem(null,''));cur=Math.min(cur,items.length-1);renderEditor();save();schedPreview()};
+ $('#bMerge').onclick=()=>{if(items.length<2||!confirm(tt('merge')+'?'))return;const tx=items.map(i=>i.text||'').join('\n');const first=items[0];first.text=tx;items=[first];cur=0;renderEditor();save();schedPreview()};
+ $('#bSplit').onclick=()=>{const e=ta(),p=e.selectionStart,a=e.value.slice(0,p),b=e.value.slice(p).replace(/^\n/,'');items[cur].text=a;items.splice(cur+1,0,newItem(null,b));cur++;renderEditor();save();schedPreview()};
+ const rep=(all)=>{const f=$('#fFind').value,r=$('#fRep').value;if(!f)return;let n=0;const fn=s=>s.split(f).join(r);(all?items:[items[cur]]).forEach(it=>{const c=(it.text||'').split(f).length-1;if(c){n+=c;it.text=fn(it.text)}});ta().value=items[cur].text;toast(n+' ✓');save();schedPreview()};
+ $('#fOne').onclick=()=>rep(false);$('#fAll').onclick=()=>rep(true);
+}
+
+/* ================= layout engine ================= */
+const SIZES={A4:[210,297],A5:[148,210],A6:[105,148],B5:[176,250],Letter:[215.9,279.4],'6x9':[152.4,228.6]};
+const PX=v=>v*96/25.4;
+const FONTS={
+ serif:'Lora,"Noto Serif Sinhala","Noto Serif Tamil","Noto Sans Sinhala","Noto Sans Tamil","Iskoola Pota","Nirmala UI",Georgia,serif',
+ sans:'Inter,"Noto Sans Sinhala","Noto Sans Tamil","Iskoola Pota","Nirmala UI",Arial,sans-serif',
+ book:'Merriweather,"Noto Serif Sinhala","Noto Serif Tamil","Noto Sans Sinhala","Noto Sans Tamil","Iskoola Pota","Nirmala UI",Georgia,serif',
+ hand:'Caveat,"Noto Sans Sinhala","Noto Sans Tamil","Nirmala UI",cursive',
+ hand2:'"Patrick Hand","Noto Sans Sinhala","Noto Sans Tamil","Nirmala UI",cursive',
+ mono:'"Courier New","Noto Sans Sinhala","Noto Sans Tamil",monospace'
+};
+async function fontsReady(){
+ try{const serif=/serif|book/.test(d.font)&&d.font!=='sans';const n=serif?'Noto Serif':'Noto Sans';
+  const f0=FONTS[d.font].split(',')[0];
+  await Promise.all([document.fonts.load(`16px ${f0}`,'Ab'),document.fonts.load(`700 16px ${f0}`,'Ab'),document.fonts.load(`16px "${n} Sinhala"`,'අ'),document.fonts.load(`700 16px "${n} Sinhala"`,'අ'),document.fonts.load(`16px "${n} Tamil"`,'த'),document.fonts.load(`700 16px "${n} Tamil"`,'த')]);
+  await document.fonts.ready}catch(e){}
+}
+function metrics(){
+ let [w,h]=SIZES[d.size]||SIZES.A4;if(d.orient==='landscape'&&d.type!=='book')[w,h]=[h,w];
+ const lh=Math.max(8,Math.round(d.fs*d.lhm));
+ const M={wmm:w,hmm:h,W:Math.round(PX(w)),H:Math.round(PX(h)),lh,mt:PX(d.mt),mb:PX(d.mb),mi:PX(d.mi),mo:PX(d.mo)};
+ M.cw=Math.max(60,Math.round(M.W-M.mi-M.mo));M.n=Math.max(1,Math.floor((M.H-M.mt-M.mb)/lh));M.cH=M.n*lh;return M;
+}
+function linesOf(text,forceHead){
+ text=String(text||'').replace(/\r/g,'');
+ if(d.keepBreaks)return text.split('\n');
+ const heads=d.headings||forceHead,out=[];let buf=[];
+ const flush=(blank)=>{if(buf.length){if(out.length&&d.paraGap&&out[out.length-1]!=='')out.push('');out.push(buf.join(' '));buf=[]}};
+ text.split('\n').forEach(raw=>{const l=raw.trim();
+  if(!l){flush();return}
+  if(heads&&/^#{1,2}\s+/.test(l)){flush();if(out.length&&d.paraGap&&out[out.length-1]!=='')out.push('');out.push(l);if(d.paraGap)out.push('');return}
+  buf.push(l)});
+ flush();while(out.length&&out[out.length-1]==='')out.pop();return out;
+}
+function makeSections(){
+ const texts=items.map(i=>i.text||'');let secs=[];
+ if(d.type==='book'){
+  const all=linesOf(texts.join('\n'),true);let c={title:null,lines:[]};
+  all.forEach(l=>{const m=l.match(/^#{1,2}\s+(.*)$/);if(m){if(c.title!==null||c.lines.some(x=>x.trim()))secs.push(c);c={title:m[1].trim(),lines:[]}}else c.lines.push(l)});
+  secs.push(c);secs=secs.filter(s=>s.title!==null||s.lines.some(x=>x.trim()));
+  secs.forEach(s=>{while(s.lines.length&&!s.lines[0].trim())s.lines.shift();while(s.lines.length&&!s.lines[s.lines.length-1].trim())s.lines.pop()});
+ }else if(d.perPhoto&&items.length>1){secs=texts.map(tx=>({title:null,lines:linesOf(tx)}))}
+ else secs=[{title:null,lines:linesOf(texts.join('\n'))}];
+ if(!secs.length)secs=[{title:null,lines:['']}];return secs;
+}
+function lineEl(l){
+ const el=document.createElement('div');el.className='ln';
+ const m=(d.headings||d.type==='book')&&l.match(/^#{1,2}\s+(.*)$/);
+ if(m){el.innerHTML='<b style="font-size:1.3em">'+esc(m[1])+'</b>'}
+ else if(l===''){el.innerHTML='&#8203;'}
+ else{el.textContent=l;if(d.indent>0&&d.align!=='center')el.style.textIndent=d.indent+'px'}
+ return el;
+}
+function rowsBlock(rows,M){
+ const el=document.createElement('div');let n=0;
+ rows.forEach(r=>{const k=r.n||1;const row=document.createElement('div');row.style.cssText=`height:${M.lh*k}px;white-space:pre-wrap;overflow:hidden;`+(r.al?`text-align:${r.al};`:'')+(r.b?'font-weight:700;':'')+(r.sz?`font-size:${r.sz}em;`:'')+(r.u?'text-decoration:underline;':'');row.textContent=r.txt||'';el.appendChild(row);n+=k});
+ if(!n)return null;el.style.height=n*M.lh+'px';return el;
+}
+function specialHead(M){
+ const R=[];
+ switch(d.special){
+  case'letter':{if(d.date)R.push({txt:d.date,al:'right'});if(d.date||d.recipient)R.push({});(d.recipient||'').split('\n').filter(x=>x.trim()).forEach(x=>R.push({txt:x}));if(d.recipient.trim())R.push({});if(d.title){R.push({txt:tt('subject')+': '+d.title,b:1,u:1});R.push({})}break}
+  case'essay':{if(d.author)R.push({txt:d.author});if(d.date)R.push({txt:d.date});if(d.title){R.push({});R.push({txt:d.title,al:'center',b:1});R.push({})}break}
+  case'poem':{if(d.title){R.push({txt:d.title,al:'center',b:1,sz:1.35,n:2});R.push({})}break}
+  case'diary':{if(d.date){R.push({txt:tt('f_date')+': '+d.date,b:1,sz:1.1});R.push({})}break}
+  case'exam':{
+   const el=document.createElement('div');
+   const mk=(a)=>{const row=document.createElement('div');row.style.cssText=`height:${M.lh*2}px;display:flex;gap:18px;align-items:flex-end;padding-bottom:3px`;a.forEach(([lab,val,w])=>{const f=document.createElement('div');f.style.cssText=`flex:${w};display:flex;gap:6px;align-items:flex-end`;f.innerHTML=`<span style="font-weight:700;white-space:nowrap">${esc(tt(lab))}:</span><span style="flex:1;border-bottom:1px solid #444;min-height:1.2em;padding:0 4px">${esc(val||'')}</span>`;row.appendChild(f)});el.appendChild(row)};
+   mk([['f_name',d.author,2],['f_date',d.date,1]]);mk([['f_subject',d.title,2],['f_marks','',1]]);
+   const sp=document.createElement('div');sp.style.height=M.lh+'px';el.appendChild(sp);el.style.height=M.lh*5+'px';el.style.background=d.paper;return el}
+ }
+ const el=rowsBlock(R,M);if(el)el.style.background=d.paper;return el;
+}
+function chapterHead(title,M){
+ const el=document.createElement('div');el.style.height=M.lh*5+'px';
+ el.innerHTML=`<div style="height:${M.lh*3}px;margin-top:${M.lh}px;margin-bottom:${M.lh}px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:1.5em;line-height:${M.lh}px;overflow:hidden">${esc(title)}</div>`;return el;
+}
+function measureSection(sec,M,isFirst){
+ const flow=document.createElement('div');
+ flow.style.cssText=`position:absolute;left:-99999px;top:0;width:${M.cw}px;font-size:${d.fs}px;line-height:${M.lh}px;text-align:${d.align};font-family:${FONTS[d.font]};visibility:hidden`;
+ document.body.appendChild(flow);
+ let head=null;
+ if(d.type==='book'){if(sec.title!=null)head=chapterHead(sec.title,M)}else if(isFirst)head=specialHead(M);
+ if(head)flow.appendChild(head);
+ sec.lines.forEach(l=>flow.appendChild(lineEl(l)));
+ let y=0;const nodes=[];
+ [...flow.children].forEach(el=>{
+  if(el!==head){const h=el.offsetHeight,k=Math.max(1,Math.round(h/M.lh));el.style.height=k*M.lh+'px'}
+  el._t=y;y+=parseFloat(el.style.height);el._b=y;nodes.push(el)});
+ flow.remove();return{nodes,total:y,hasHead:!!head};
+}
+function linesBG(M){
+ const c=d.lineColor,lh=M.lh,fs=d.fs;
+ if(d.lines==='ruled'){const y=Math.round(Math.min(lh-2,(lh-fs*1.2)/2+fs*1.2));return{img:`linear-gradient(to bottom,transparent ${y}px,${c} ${y}px,${c} ${y+1}px,transparent ${y+1}px)`,size:`100% ${lh}px`}}
+ if(d.lines==='grid')return{img:`linear-gradient(to bottom,transparent ${lh-1}px,${c} ${lh-1}px),linear-gradient(to right,transparent ${lh-1}px,${c} ${lh-1}px)`,size:`${lh}px ${lh}px`};
+ if(d.lines==='dots')return{img:`radial-gradient(circle at ${lh-1}px ${lh-1}px,${c} 1.3px,transparent 1.8px)`,size:`${lh}px ${lh}px`};
+ return null;
+}
+function basePage(M){const pg=document.createElement('div');pg.className='page';pg.style.cssText=`width:${M.W}px;height:${M.H}px;background:${d.paper};color:${d.ink};font-family:${FONTS[d.font]};font-size:${d.fs}px`;return pg}
+function sides(M,no){return(d.type==='book'&&no%2===0)?[M.mo,M.mi]:[M.mi,M.mo]}
+function addBars(pg,M,no,title,showHead){
+ const [ml,mr]=sides(M,no);
+ if(d.pageNums!=='none'&&no){const e=document.createElement('div');e.className='hdbar';e.textContent=no;e.style.fontSize='12px';
+  if(d.pageNums==='center'){e.style.cssText+=`left:0;right:0;text-align:center;bottom:${Math.max(4,M.mb/2-8)}px`}
+  else if(d.pageNums==='outside'){const right=(d.type!=='book')||no%2===1;e.style.cssText+=`bottom:${Math.max(4,M.mb/2-8)}px;${right?`right:${mr}px`:`left:${ml}px`}`}
+  else e.style.cssText+=`top:${Math.max(4,M.mt/2-8)}px;right:${mr}px`;
+  pg.appendChild(e)}
+ if(showHead&&d.runHead&&d.type==='book'){const t=(no%2===0?(d.author||d.title):d.title)||'';if(t){const e=document.createElement('div');e.className='hdbar';e.textContent=t;e.style.cssText+=`left:${ml}px;right:${mr}px;text-align:center;font-style:italic;top:${Math.max(4,M.mt/2-8)}px`;pg.appendChild(e)}}
+}
+function flowPage(M,sec,pi,no,showHead){
+ const pg=basePage(M);const [ml]=sides(M,no);
+ if(d.type==='paper'&&d.marginLine){const x=ml-PX(3.5);const ml1=document.createElement('div');ml1.style.cssText=`position:absolute;top:0;bottom:0;left:${x}px;width:1.5px;background:${d.marginColor}`;pg.appendChild(ml1);if(d.tpl==='legal'){const m2=ml1.cloneNode();m2.style.left=(x+4)+'px';pg.appendChild(m2)}}
+ const ct=document.createElement('div');ct.className='content';
+ ct.style.cssText=`left:${ml}px;top:${M.mt}px;width:${M.cw}px;height:${M.cH}px;font-size:${d.fs}px;line-height:${M.lh}px;text-align:${d.align}`;
+ const bg=linesBG(M);if(bg){ct.style.backgroundImage=bg.img;ct.style.backgroundSize=bg.size;ct.style.backgroundRepeat='repeat'}
+ const inner=document.createElement('div');const start=pi*M.cH,end=start+M.cH;let first=null;
+ sec.nodes.forEach(nd=>{if(nd._b>start+.5&&nd._t<end-.5){if(first===null)first=nd._t;inner.appendChild(nd.cloneNode(true))}});
+ inner.style.marginTop=((first===null?0:first)-start)+'px';ct.appendChild(inner);pg.appendChild(ct);
+ addBars(pg,M,no,null,showHead);return pg;
+}
+function titlePageEl(M){
+ const pg=basePage(M),w=document.createElement('div');
+ w.style.cssText=`position:absolute;left:${M.mi}px;right:${M.mo}px;top:${M.H*.3}px;text-align:center`;
+ w.innerHTML=`<div style="font-size:${d.fs*2.2}px;font-weight:700;line-height:1.25;overflow-wrap:anywhere">${esc((d.title||'').trim()||tt('untitled'))}</div>`+(d.author?`<div style="margin-top:${d.fs*3}px;font-size:${d.fs*1.25}px;opacity:.85">${esc(d.author)}</div>`:'')+(d.date?`<div style="margin-top:${d.fs}px;font-size:${d.fs}px;opacity:.65">${esc(d.date)}</div>`:'');
+ pg.appendChild(w);return pg;
+}
+function tocPageEl(M,entries){
+ const pg=basePage(M),w=document.createElement('div');
+ w.style.cssText=`position:absolute;left:${M.mi}px;width:${M.cw}px;top:${M.mt}px;line-height:${M.lh}px`;
+ let h=`<div style="text-align:center;font-weight:700;font-size:1.5em;height:${M.lh*3}px;line-height:${M.lh*2}px">${esc(tt('contents'))}</div>`;
+ const maxRows=Math.max(1,M.n-3);
+ entries.slice(0,maxRows).forEach(e=>{h+=`<div style="display:flex;gap:6px;height:${M.lh}px;overflow:hidden"><span style="white-space:nowrap;max-width:85%;overflow:hidden;text-overflow:ellipsis">${esc(e.t)}</span><span style="flex:1;border-bottom:1px dotted #777;margin-bottom:${Math.round(M.lh*.3)}px"></span><span>${e.p}</span></div>`});
+ w.innerHTML=h;pg.appendChild(w);return pg;
+}
+async function buildDoc(){
+ await fontsReady();
+ const M=metrics(),secs=makeSections();
+ const meas=secs.map((s,i)=>measureSection(s,M,i===0));
+ const pages=[];let front=0;
+ const wantTitle=(d.type==='book'||d.special==='report')&&d.titlePage;
+ const entries=[];let bodyNo=1;
+ const counts=meas.map(m=>Math.max(1,Math.ceil((m.total-.01)/M.cH)));
+ const wantToc=d.type==='book'&&d.toc&&secs.some(s=>s.title);
+ secs.forEach((s,i)=>{if(s.title)entries.push({t:s.title,p:bodyNo});bodyNo+=counts[i]});
+ if(wantTitle)pages.push(titlePageEl(M));
+ if(wantToc)pages.push(tocPageEl(M,entries));
+ let no=1;
+ secs.forEach((s,i)=>{for(let p=0;p<counts[i];p++){pages.push(flowPage(M,meas[i],p,no,!(p===0&&meas[i].hasHead&&d.type==='book')));no++}});
+ return{pages,M};
+}
+
+/* ================= preview ================= */
+let prevT=0,prevTok=0;
+function schedPreview(){clearTimeout(prevT);prevT=setTimeout(renderPreview,200)}
+async function renderPreview(){
+ if(step!==3)return;const tok=++prevTok;const el=$('#prev');
+ if(d.type==='text'){el.innerHTML=`<div class="card" style="margin:0"><div class="muted">${esc(tt('textPrevNote'))}</div><pre style="white-space:pre-wrap;font-family:inherit">${esc(fullText(true))}</pre></div>`;$('#pcount').textContent='';return}
+ const {pages,M}=await buildDoc();if(tok!==prevTok)return;
+ const z=($('#zoom').value/100)*Math.min(1,(el.clientWidth-28)/M.W);
+ el.innerHTML='';
+ pages.forEach((p,i)=>{const w=document.createElement('div');w.className='pw';w.style.width=M.W*z+'px';w.style.height=M.H*z+'px';p.style.transform=`scale(${z})`;w.appendChild(p);el.appendChild(w)});
+ $('#pcount').textContent=`${pages.length} ${tt('pagesWord')}`;
+}
+
+/* ================= controls ================= */
+function renderTypeSeg(){const s=$('#typeSeg');s.innerHTML='';['text','pdf','book','paper'].forEach(ty=>{const b=document.createElement('button');b.textContent=tt('ty_'+ty);b.className=d.type===ty?'on':'';b.onclick=()=>setType(ty);s.appendChild(b)});$('#designCtl').style.display=d.type==='text'?'none':'block'}
+function renderTpls(){const s=$('#tpls');s.innerHTML='';(TYPE_TPLS[d.type]||[]).forEach(id=>{const b=document.createElement('button');b.textContent=tt('t_'+id);b.className=d.tpl===id?'on':'';b.onclick=()=>applyTpl(id);s.appendChild(b)})}
+function syncCtl(){
+ $$('[data-k]').forEach(e=>{const k=e.dataset.k;if(e.type==='checkbox')e.checked=!!d[k];else e.value=d[k]});
+ $('#lhmv').textContent=(+d.lhm).toFixed(2);
+}
+function wireCtl(){
+ $$('[data-k]').forEach(e=>{const h=()=>{const k=e.dataset.k;d[k]=e.type==='checkbox'?e.checked:(e.type==='number'||e.type==='range')?(+e.value||0):e.value;if(k==='lhm')$('#lhmv').textContent=(+d.lhm).toFixed(2);schedPreview();saveSoon()};e.addEventListener(e.type==='checkbox'||e.tagName==='SELECT'?'change':'input',h)});
+ $('#zoom').oninput=schedPreview;
+ window.addEventListener('resize',()=>{if(step===3)schedPreview()});
+ if(document.fonts&&document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',()=>{if(step===3)schedPreview()});
+}
+
+/* ================= export ================= */
+function fullText(sep){return items.map(i=>(i.text||'').replace(/\r/g,'').replace(/\s+$/,'')).join(sep?'\n\n':'\n')}
+const txtSep=()=>$('#txtSep').checked;
+function exportTxt(){download(new Blob(['﻿'+fullText(txtSep())],{type:'text/plain;charset=utf-8'}),fname()+'.txt');toast(tt('saved'))}
+function exportDoc(){
+ const secs=items.map(i=>i.text||'').join(txtSep()?'\n\n':'\n').split('\n');
+ const body=secs.map(l=>{const m=l.match(/^#{1,2}\s+(.*)$/);return m?`<h2>${esc(m[1])}</h2>`:`<p style="margin:0">${l.trim()?esc(l):'&nbsp;'}</p>`}).join('\n');
+ const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(d.title||'')}</title><style>body{font-family:"Iskoola Pota","Nirmala UI",Calibri,sans-serif;font-size:12pt;line-height:1.5}</style></head><body>${d.title?`<h1>${esc(d.title)}</h1>`:''}${body}</body></html>`;
+ download(new Blob(['﻿'+html],{type:'application/msword'}),fname()+'.doc');toast(tt('saved'));
+}
+async function exportCopy(){try{await navigator.clipboard.writeText(fullText(txtSep()));toast(tt('copied'))}catch(e){toast('Copy failed')}}
+async function exportPDF(){
+ if(d.type==='text'){setType('pdf')}
+ abort=false;busy(tt('preparing'),2);
+ try{
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  const {pages,M}=await buildDoc();const sc=+$('#q').value||2;
+  const host=document.createElement('div');host.style.cssText='position:absolute;left:0;top:0;z-index:-1;width:'+M.W+'px;height:'+M.H+'px';document.body.appendChild(host);
+  window.scrollTo(0,0);const {jsPDF}=window.jspdf;let pdf;const o=M.wmm>M.hmm?'l':'p';
+  for(let i=0;i<pages.length;i++){
+   if(abort)throw new Error('cancelled');
+   busy(`${tt('preparing')} ${i+1}/${pages.length}`,(i/pages.length)*100);
+   host.innerHTML='';host.appendChild(pages[i]);await sleep(30);
+   const cv=await html2canvas(pages[i],{scale:sc,backgroundColor:d.paper,logging:false,useCORS:true,scrollX:0,scrollY:0,width:M.W,height:M.H,windowWidth:Math.max(M.W,document.documentElement.clientWidth)});
+   const img=cv.toDataURL('image/jpeg',.92);
+   if(!pdf)pdf=new jsPDF({unit:'mm',format:[M.wmm,M.hmm],orientation:o,compress:true});else pdf.addPage([M.wmm,M.hmm],o);
+   pdf.addImage(img,'JPEG',0,0,M.wmm,M.hmm,undefined,'FAST');
+  }
+  host.remove();pdf.save(fname()+'.pdf');toast(tt('saved'));
+ }catch(e){if(String(e.message)!=='cancelled')toast('PDF: '+e.message,6000)}
+ busyOff();
+}
+async function exportPrint(){
+ if(d.type==='text'){setType('pdf')}
+ const {pages,M}=await buildDoc();const root=$('#printRoot');root.innerHTML='';
+ pages.forEach(p=>root.appendChild(p));
+ let st=$('#pageStyle');if(!st){st=document.createElement('style');st.id='pageStyle';document.head.appendChild(st)}
+ st.textContent=`@page{size:${M.wmm}mm ${M.hmm}mm;margin:0}`;
+ await sleep(100);window.print();
+}
+function exportBackup(){download(new Blob([JSON.stringify({L,texts:items.map(i=>i.text),d})],{type:'application/json'}),'handscan-backup.json')}
+function restoreBackup(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);items=(j.texts||[]).map(t=>newItem(null,t));if(!items.length)items=[newItem(null,'')];Object.assign(d,D0,j.d||{});cur=0;save();syncCtl();renderThumbs();renderEditor();renderTypeSeg();renderTpls();toast(tt('done'))}catch(e){toast('Invalid file')}};r.readAsText(f)}
+
+/* ================= AI chat ================= */
+const msgs=[];
+function renderChips(){
+ const c=$('#chips');c.innerHTML='';
+ const P={
+  c_check:'Review the text for mistakes (spelling, wrong words, likely OCR/handwriting misreads). Do NOT change the text. List each issue as: original → suggestion.',
+  c_verify:'Compare the attached photo with the text word by word. List every difference where the text does not match the handwriting. Then provide the corrected text so it matches the handwriting exactly (keep any spelling mistakes the writer made).',
+  c_spell:'Fix spelling mistakes only. Keep wording, line breaks and language unchanged.',
+  c_title:'Suggest a short fitting title and add it as a first line starting with "# ". Keep the rest unchanged.',
+  c_poem:'Format this as a poem: short lines, a blank line between stanzas. Do not change any words.',
+  c_clean:'Remove extra spaces and fix broken lines and paragraphs. Do not change any words.',
+  c_si:'Translate the text to Sinhala. Keep the line structure.',c_en:'Translate the text to English. Keep the line structure.',c_ta:'Translate the text to Tamil. Keep the line structure.'};
+ Object.keys(P).forEach(k=>{const b=document.createElement('button');b.textContent=tt(k);b.onclick=()=>sendChat(P[k],k==='c_verify');c.appendChild(b)});
+}
+function renderMsgs(){
+ const el=$('#msgs');el.innerHTML='';
+ msgs.forEach((m,i)=>{const b=document.createElement('div');b.className='m '+(m.r==='u'?'u':'a');
+  b.textContent=m.t;
+  if(m.rev!=null&&!m.done){const pre=document.createElement('pre');pre.textContent=m.rev;b.appendChild(pre);
+   const row=document.createElement('div');row.className='row nf';row.style.marginTop='8px';
+   const a=document.createElement('button');a.className='btn g sm';a.textContent=tt('apply');a.onclick=()=>applyRev(i);
+   const x=document.createElement('button');x.className='btn o sm';x.textContent=tt('discard');x.onclick=()=>{m.done=1;renderMsgs()};
+   row.append(a,x);b.appendChild(row)}
+  el.appendChild(b)});
+ el.scrollTop=el.scrollHeight;
+}
+function applyRev(i){
+ const m=msgs[i];
+ if(m.scope==='all'){
+  const parts=m.rev.split(/^=== PAGE (\d+) ===[ \t]*\n?/m);
+  if(parts.length>=3){const map={};for(let k=1;k<parts.length;k+=2)map[+parts[k]]=(parts[k+1]||'').replace(/\n+$/,'');
+   items.forEach((it,idx)=>{if(map[idx+1]!=null)it.text=map[idx+1]})}
+  else{items[0].text=m.rev;items=[items[0]];cur=0}
+ }else{items[m.idx!=null?m.idx:cur].text=m.rev}
+ m.done=1;renderMsgs();renderEditor();save();schedPreview();toast(tt('applied'));
+}
+async function sendChat(text,withImg){
+ text=(text||'').trim();if(!text)return;
+ if(!items.length){items.push(newItem(null,''))}
+ const scope=$('#cScope').value;
+ msgs.push({r:'u',t:text});msgs.push({r:'a',t:tt('working')});renderMsgs();
+ const work=msgs[msgs.length-1];
+ try{
+  const lang={en:'English',si:'Sinhala',ta:'Tamil'}[L];
+  const body=scope==='all'?items.map((it,i)=>`=== PAGE ${i+1} ===\n${it.text||''}`).join('\n'):(items[cur].text||'');
+  const hist=msgs.slice(-9,-2).map(m=>(m.r==='u'?'User: ':'Assistant: ')+m.t.slice(0,500)).join('\n');
+  const prompt=`You are the editing assistant inside a handwriting-to-document tool. Reply in ${lang}.
+RULES:
+- Never change the user's wording, spelling or language unless the user explicitly asks.
+- If the user asks you to change / fix / format / translate / rewrite the text: write one or two short sentences explaining what you did, then give the COMPLETE revised text between the markers <<<TEXT and TEXT>>>${scope==='all'?' and keep every "=== PAGE n ===" line exactly as it is':''}.
+- If the user only asks a question or wants a review: answer briefly WITHOUT those markers (use bullet points: original → suggestion).
+The user's text (${scope==='all'?'all pages':'page '+(cur+1)}) is between TEXT START and TEXT END.
+--- TEXT START ---
+${body}
+--- TEXT END ---
+${hist?'Conversation so far:\n'+hist+'\n':''}User: ${text}`;
+  let img=null;const it=items[cur];
+  if(withImg){if(!it.file)throw new Error(tt('noImg'));img=await prepImage(it)}
+  let out;
+  if(eng.engine==='gemini')out=await callGemini(prompt,img&&img.b64);else out=await callPuter(prompt,img&&img.blob);
+  const m=out.match(/<<<TEXT\n?([\s\S]*?)\n?TEXT>>>/);
+  work.t=(m?out.replace(m[0],'').trim():out.trim())||'✓';
+  if(m){work.rev=m[1];work.scope=scope;work.idx=cur}
+ }catch(e){work.t='⚠ '+(e&&e.message||e)}
+ renderMsgs();
+}
+
+/* ================= init ================= */
+function init(){
+ load();
+ $$('.lang button').forEach(b=>b.onclick=()=>{L=b.dataset.l;applyLang();save()});
+ const dr=$('#drop');
+ dr.onclick=()=>$('#file').click();
+ dr.ondragover=e=>{e.preventDefault();dr.classList.add('over')};dr.ondragleave=()=>dr.classList.remove('over');
+ dr.ondrop=e=>{e.preventDefault();dr.classList.remove('over');addFiles(e.dataTransfer.files)};
+ $('#file').onchange=e=>{addFiles(e.target.files);e.target.value=''};
+ $('#cam').onchange=e=>{addFiles(e.target.files);e.target.value=''};
+ $('#btnCam').onclick=()=>$('#cam').click();
+ $('#btnManual').onclick=()=>{if(!items.length)items.push(newItem(null,''));goStep(2)};
+ $('#btnClear').onclick=()=>{if(items.length&&confirm(tt('clearAll')+'?')){items=[];cur=0;renderThumbs();renderEditor();save()}};
+ $('#btnRead').onclick=readAll;$('#busyCancel').onclick=()=>{abort=true};
+ const bind=(id,k,ev='input')=>{const e=$(id);if(e.type==='checkbox')e.checked=!!eng[k];else e.value=eng[k];e.addEventListener(ev,()=>{eng[k]=e.type==='checkbox'?e.checked:e.value;if(k==='engine')engUI();saveSoon()})};
+ bind('#ocrLang','ocrLang','change');bind('#engine','engine','change');bind('#gkey','gkey');bind('#gmodel','gmodel');bind('#pmodel','pmodel');bind('#enhance','enhance','change');
+ const engUI=()=>{$('#gemBox').style.display=eng.engine==='gemini'?'flex':'none';$('#putBox').style.display=eng.engine==='puter'?'flex':'none'};engUI();
+ $$('[data-go]').forEach(b=>b.onclick=()=>goStep(+b.dataset.go));
+ wireEditor();wireCtl();
+ $('#xPdf').onclick=exportPDF;$('#xPrint').onclick=exportPrint;$('#xTxt').onclick=exportTxt;$('#xDoc').onclick=exportDoc;$('#xCopy').onclick=exportCopy;
+ $('#xBk').onclick=exportBackup;$('#xRs').onclick=()=>$('#rsFile').click();$('#rsFile').onchange=e=>{if(e.target.files[0])restoreBackup(e.target.files[0]);e.target.value=''};
+ $('#fab').onclick=()=>{$('#chat').classList.add('open');if(!msgs.length){msgs.push({r:'a',t:tt('aiHello')});renderMsgs()}};
+ $('#cClose').onclick=()=>$('#chat').classList.remove('open');
+ $('#cSend').onclick=()=>{const v=$('#cText').value;$('#cText').value='';sendChat(v,false)};
+ $('#cText').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('#cSend').click()}});
+ if(!TYPE_TPLS[d.type]&&d.type!=='text')d={...D0};
+ applyLang();goStep(items.length&&items.some(i=>i.text)?2:1);
+}
+init();
+</script>
+</body>
+</html>
